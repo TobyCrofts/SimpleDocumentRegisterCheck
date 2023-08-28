@@ -1,7 +1,5 @@
 # SimpleDocumentRegisterCheck
 
-Certainly! Here's an example of a README document for the script that you can use as a starting point:
-
 Document Checker App
 The Document Checker App is a PyQt5-based desktop application that allows you to check if a list of documents specified in an Excel file are present within a specified folder and its subfolders. The application provides a user-friendly interface to browse for the Excel file, folder location, and set the output file for the results.
 
