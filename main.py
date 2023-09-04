@@ -1,8 +1,8 @@
 import sys
 import os
-from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout, QLabel, QLineEdit, QPushButton, QFileDialog
+from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout, QLabel, QLineEdit, QPushButton, QFileDialog, QMessageBox
 from openpyxl import load_workbook
-from PyQt5.QtGui import QIcon, QFont
+from PyQt5.QtGui import QIcon, QFont, QColor
 from PyQt5.QtCore import Qt
 
 class DocumentCheckerApp(QMainWindow):
@@ -12,30 +12,33 @@ class DocumentCheckerApp(QMainWindow):
         self.init_ui()
 
     def init_ui(self):
-        self.setWindowTitle("Document Checker")
-        self.setGeometry(100, 100, 400, 250)
-        self.setWindowIcon(QIcon('icon.png'))  # Add your own icon file path
+        self.setWindowTitle("Arup Document Checker")
+        self.setGeometry(100, 100, 400, 350)
+        self.setWindowIcon(QIcon('arup_icon.png'))  # Replace with Arup's icon file path
 
         self.central_widget = QWidget(self)
         self.setCentralWidget(self.central_widget)
 
         layout = QVBoxLayout()
 
-        self.title_label = QLabel("Document Checker")
+        self.title_label = QLabel("Arup Document Checker")
         self.title_label.setAlignment(Qt.AlignCenter)
-        self.title_label.setFont(QFont("Helvetica", 16, QFont.Bold))
+        self.title_label.setFont(QFont("Arial", 20, QFont.Bold))
 
         self.excel_file_input = QLineEdit()
         self.excel_file_button = QPushButton("Browse Excel File")
+        self.excel_file_button.setStyleSheet("background-color: #E30613; color: white;")
 
         self.folder_location_input = QLineEdit()
         self.folder_location_button = QPushButton("Browse Folder Location")
+        self.folder_location_button.setStyleSheet("background-color: #E30613; color: white;")
 
         self.output_file_input = QLineEdit()
-        self.output_file_button = QPushButton("Browse Output File")
+        self.output_file_button = QPushButton("Select Output Folder")
+        self.output_file_button.setStyleSheet("background-color: #E30613; color: white;")
 
         self.check_button = QPushButton("Check Documents")
-        self.check_button.setStyleSheet("background-color: #3498db; color: white;")
+        self.check_button.setStyleSheet("background-color: #BF0413; color: white;")
         self.check_button.clicked.connect(self.check_documents)
 
         layout.addWidget(self.title_label)
@@ -51,7 +54,8 @@ class DocumentCheckerApp(QMainWindow):
 
         self.excel_file_button.clicked.connect(self.browse_excel_file)
         self.folder_location_button.clicked.connect(self.browse_folder_location)
-        self.output_file_button.clicked.connect(self.browse_output_file)
+        self.output_file_button.clicked.connect(self.select_output_file_location)
+
 
     def browse_excel_file(self):
         options = QFileDialog.Options()
@@ -63,18 +67,18 @@ class DocumentCheckerApp(QMainWindow):
         folder_location = QFileDialog.getExistingDirectory(self, "Select Folder Location")
         self.folder_location_input.setText(folder_location)
 
-    def browse_output_file(self):
+    def select_output_file_location(self):
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
-        output_file, _ = QFileDialog.getSaveFileName(self, "Save Output File", "", "Excel Files (*.xlsx);;All Files (*)", options=options)
-        self.output_file_input.setText(output_file)
+        output_file_dir = QFileDialog.getExistingDirectory(self, "Select Output File Location")
+        self.output_file_input.setText(output_file_dir)
 
     def check_documents(self):
         excel_file_path = self.excel_file_input.text()
         folder_location = self.folder_location_input.text()
-        output_file_path = self.output_file_input.text()
+        output_file_dir = self.output_file_input.text()
 
-        if excel_file_path and folder_location and output_file_path:
+        if excel_file_path and folder_location and output_file_dir:
             try:
                 wb = load_workbook(excel_file_path)
                 sheet = wb.active
@@ -88,10 +92,22 @@ class DocumentCheckerApp(QMainWindow):
                         found = "Y"
                     sheet.cell(row=row[0].row, column=sheet.max_column, value=found)
 
-                wb.save(output_file_path)
+                output_filename = os.path.join(output_file_dir, "document_checker_results.xlsx")
+                wb.save(output_filename)
                 wb.close()
 
-                print("Document checking completed and results saved.")
+                print("Document checking completed and results saved to:", output_filename)
+
+                # Show a pop-up message when the check is complete
+                QMessageBox.information(self, "Document Check Complete", "Document checking is complete. Results saved to:\n" + output_filename)
+
+                # Open button to open the results file
+                open_button = QPushButton("Open Results File")
+                open_button.setStyleSheet("background-color: #2ECC71; color: white;")
+                open_button.clicked.connect(lambda: os.startfile(output_filename))
+
+                self.central_widget.layout().addWidget(open_button)
+
             except Exception as e:
                 print("Error:", e)
         else:
@@ -103,6 +119,7 @@ class DocumentCheckerApp(QMainWindow):
                 if document_title in filename:
                     return True
         return False
+    
 
 def main():
     app = QApplication(sys.argv)
