@@ -1,6 +1,9 @@
 import sys
 import os
-from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout, QLabel, QLineEdit, QPushButton, QFileDialog, QMessageBox
+from PyQt5.QtWidgets import (
+    QApplication, QMainWindow, QWidget, QVBoxLayout, QLabel,
+    QLineEdit, QPushButton, QFileDialog, QMessageBox,
+)
 from openpyxl import load_workbook
 from PyQt5.QtGui import QIcon, QFont, QColor
 from PyQt5.QtCore import Qt
@@ -12,7 +15,7 @@ class DocumentCheckerApp(QMainWindow):
         self.init_ui()
 
     def init_ui(self):
-        self.setWindowTitle("Arup Document Checker")
+        self.setWindowTitle("Document Register Checker")
         self.setGeometry(100, 100, 400, 350)
         self.setWindowIcon(QIcon('arup_icon.png'))  # Replace with Arup's icon file path
 
@@ -21,33 +24,32 @@ class DocumentCheckerApp(QMainWindow):
 
         layout = QVBoxLayout()
 
-        self.title_label = QLabel("Arup Document Checker")
+        self.title_label = QLabel("Document Register Checker")
         self.title_label.setAlignment(Qt.AlignCenter)
-        self.title_label.setFont(QFont("Arial", 20, QFont.Bold))
+        self.title_label.setFont(QFont("Arial", 24, QFont.Bold))
+        layout.addWidget(self.title_label)
 
         self.excel_file_input = QLineEdit()
-        self.excel_file_button = QPushButton("Browse Excel File")
-        self.excel_file_button.setStyleSheet("background-color: #E30613; color: white;")
-
-        self.folder_location_input = QLineEdit()
-        self.folder_location_button = QPushButton("Browse Folder Location")
-        self.folder_location_button.setStyleSheet("background-color: #E30613; color: white;")
-
-        self.output_file_input = QLineEdit()
-        self.output_file_button = QPushButton("Select Output Folder")
-        self.output_file_button.setStyleSheet("background-color: #E30613; color: white;")
-
-        self.check_button = QPushButton("Check Documents")
-        self.check_button.setStyleSheet("background-color: #BF0413; color: white;")
-        self.check_button.clicked.connect(self.check_documents)
-
-        layout.addWidget(self.title_label)
+        self.excel_file_button = QPushButton("Browse Excel File")  # Added this button
+        self.setup_button_style(self.excel_file_button)
         layout.addWidget(self.excel_file_input)
         layout.addWidget(self.excel_file_button)
+
+        self.folder_location_input = QLineEdit()
+        self.folder_location_button = QPushButton("Browse Folder Location")  # Added this button
+        self.setup_button_style(self.folder_location_button)
         layout.addWidget(self.folder_location_input)
         layout.addWidget(self.folder_location_button)
+
+        self.output_file_input = QLineEdit()
+        self.output_file_button = QPushButton("Select Output Folder")  # Added this button
+        self.setup_button_style(self.output_file_button)
         layout.addWidget(self.output_file_input)
         layout.addWidget(self.output_file_button)
+
+        self.check_button = QPushButton("Check Documents")
+        self.check_button.setStyleSheet("background-color: #E30613; color: white;")
+        self.check_button.clicked.connect(self.check_documents)
         layout.addWidget(self.check_button)
 
         self.central_widget.setLayout(layout)
@@ -56,6 +58,18 @@ class DocumentCheckerApp(QMainWindow):
         self.folder_location_button.clicked.connect(self.browse_folder_location)
         self.output_file_button.clicked.connect(self.select_output_file_location)
 
+    def setup_button_style(self, button):
+        button.setStyleSheet("background-color: #E30613; color: white;")
+
+    def setup_textfield_with_button(self, label_text, text_input, button, layout):
+        text_label = QLabel(label_text)
+        text_input.setStyleSheet("background-color: #F5F5F5;")
+        button.setStyleSheet("background-color: #E30613; color: white;")
+
+        text_label.setFont(QFont("Arial", 12, QFont.Bold))
+        layout.addWidget(text_label)
+        layout.addWidget(text_input)
+        layout.addWidget(button)
 
     def browse_excel_file(self):
         options = QFileDialog.Options()
@@ -119,7 +133,6 @@ class DocumentCheckerApp(QMainWindow):
                 if document_title in filename:
                     return True
         return False
-    
 
 def main():
     app = QApplication(sys.argv)
